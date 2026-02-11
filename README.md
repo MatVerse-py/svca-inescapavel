@@ -67,6 +67,43 @@ Se tudo estiver correto, o script encerra com:
 
 ---
 
+
+## Setup científico do laboratório
+
+Antes de qualquer experimento, inicialize e congele o ambiente:
+
+```bash
+./setup.sh
+```
+
+O script:
+
+1. Atualiza `pip`
+2. Instala dependências declaradas em `requirements.txt`
+3. Gera `requirements-lock.txt` via `pip freeze`
+4. Registra o commit corrente em `BUILD_COMMIT`
+5. Garante `verify.sh` executável
+
+---
+
+## Porta de admissão (verify obrigatório)
+
+`verify.sh` é o gate de publicação. Nada deve ser publicado sem `verify` em estado PASS.
+
+---
+
+## Contrato de artefato
+
+Cada execução experimental deve exportar saídas em `artifact/` com o contrato mínimo:
+
+- `bundle.tar.gz`
+- `manifest.json`
+- `hashes.txt`
+- `commit.txt`
+
+Isso mantém a separação entre LAB (mutável) e publisher (imutável).
+
+---
 ## Execução hermética com Docker (opcional)
 
 ```bash
