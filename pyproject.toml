@@ -3,9 +3,12 @@ name = "svca-lab"
 version = "0.1.0"
 requires-python = ">=3.12"
 dependencies = [
-    "requests",
-    "python-dotenv",
-    "blake3",
-    "gitpython",
-    "pytest"
+  "requests",
+  "python-dotenv",
+  "blake3",
+  "gitpython",
+  "pytest"
 ]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
