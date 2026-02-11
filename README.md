@@ -16,37 +16,30 @@ SVCA (Self‑Verifying Computational Artifact) é um objeto digital que:
 Isto inverte o fluxo da ciência computacional:  
 **do “paper descreve o experimento”** → **para “o artefato é o experimento”.**
 
-## Uso imediato (com Docker)
+## Uso imediato
 
 ```bash
 git clone https://github.com/MatVerse-py/svca-inescapavel.git
 cd svca-inescapavel
 
-docker build -t svca -f container/Dockerfile .
-docker run --rm svca
-```
-
-O artefato final estará em `build/module.wasm.br` e sua assinatura em `build/signature.bin`.
-
-## Verificação de reprodutibilidade
-
-```bash
+./build.sh
 ./verify.sh
 ```
 
-Este script:
-1. Verifica a assinatura do manifesto
-2. Confere o hash do binário
-3. Compara com o hash esperado (garantido pelo `manifest.sha256` assinado)
+O artefato final estará em `build/module.wasm` e sua assinatura em `build/signature.bin`.
 
-## Publicação científica
+## Verificação de reprodutibilidade
 
-Este repositório acompanha o artigo:
+`./verify.sh` executa:
+1. Verificação da assinatura Ed25519 do manifesto
+2. Checagem do hash SHA256 do binário gerado
 
-> **SVCA: Self‑Verifying Computational Artifacts – A Primitive for Artifact‑Oriented Science**  
-> Disponível em `paper/svca.tex` (pronto para arXiv/SOSP).
+## Build hermético (opcional com Docker)
 
-O próprio artefato gerado (`build/module.wasm.br`, `build/signature.bin`, `build/manifest.sha256`) pode ser anexado ao PDF como suplemento executável.
+```bash
+docker build -t svca -f container/Dockerfile .
+docker run --rm -v "$PWD:/app" svca bash -lc "cd /app && ./build.sh && ./verify.sh"
+```
 
 ## Licença
 

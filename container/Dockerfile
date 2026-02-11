@@ -5,8 +5,7 @@ ENV TZ=UTC
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-        ca-certificates curl git brotli minisign \
-        build-essential wget && \
+        ca-certificates curl git build-essential wget && \
     rm -rf /var/lib/apt/lists/*
 
 # Instalar Go deterministicamente (pinned version + hash)

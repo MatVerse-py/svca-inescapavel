@@ -10,17 +10,14 @@ cd "$BUILD_DIR"
 
 echo "🔧 Compilando módulo Go (WASM) com flags determinísticas..."
 GOOS=js GOARCH=wasm \
-go build -trimpath -ldflags="-s -w -buildid=" \
+  go build -trimpath -ldflags="-s -w -buildid=" \
   -o module.wasm "$ROOT/src/module.go"
 
-echo "🗜️ Comprimindo com Brotli nível 11..."
-brotli -q 11 module.wasm -o module.wasm.br
-
-echo "📝 Gerando manifesto e assinatura..."
-sha256sum module.wasm.br > manifest.sha256
+echo "📝 Gerando manifesto e assinatura Ed25519..."
+sha256sum module.wasm > manifest.sha256
 cat > manifest.json <<MANIFEST
 {
-  "capsule": "module.wasm.br",
+  "capsule": "module.wasm",
   "timestamp": "",
   "signature": "signature.bin",
   "compiler": {
@@ -28,10 +25,14 @@ cat > manifest.json <<MANIFEST
   }
 }
 MANIFEST
-minisign -Sm manifest.sha256 -s "$ROOT/capsule/secret.key"
 
-mv manifest.sha256.minisig signature.bin
+if [[ ! -f "$ROOT/capsule/secret.key" ]]; then
+  echo "🔑 Gerando par de chaves Ed25519 (primeira execução)..."
+  go run "$ROOT/tools/svca-crypto/main.go" keygen --pub "$ROOT/capsule/pubkey.pem" --sec "$ROOT/capsule/secret.key"
+fi
+
+go run "$ROOT/tools/svca-crypto/main.go" sign --sec "$ROOT/capsule/secret.key" --in manifest.sha256 --out signature.bin
 
 echo "✅ Artefato pronto:"
-ls -lh module.wasm.br signature.bin manifest.sha256 manifest.json
-sha256sum module.wasm.br
+ls -lh module.wasm signature.bin manifest.sha256 manifest.json
+sha256sum module.wasm
