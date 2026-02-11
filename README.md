@@ -1,43 +1,31 @@
 # SVCA Inescapável
 
-Self-Verifying Computational Artifact  
-Um primitivo mínimo para ciência executável, offline e deterministicamente reproduzível.
+**Self-Verifying Computational Artifact (SVCA)**
 
-![Reproducible Build](https://github.com/MatVerse-py/svca-inescapavel/actions/workflows/ci.yml/badge.svg)
+Um primitivo para **ciência executável**, **offline** e **deterministicamente reproduzível**.
+
+[![Reproducible Build](https://github.com/MatVerse-py/svca-inescapavel/actions/workflows/ci.yml/badge.svg)](https://github.com/MatVerse-py/svca-inescapavel/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ---
 
-## 📖 O que é SVCA
+## Visão geral
 
 SVCA (Self-Verifying Computational Artifact) é um objeto digital que:
 
-- Contém o experimento (código + runtime)
-- Prova sua própria integridade (assinatura Ed25519)
-- Reproduz os mesmos bytes em qualquer máquina (build determinístico)
-- Executa offline, sem infraestrutura externa
+- **Contém** o experimento (código + runtime)
+- **Prova** sua própria integridade (assinatura Ed25519)
+- **Reproduz** os mesmos bytes em qualquer máquina (build determinístico)
+- **Executa** sem dependência de infraestrutura externa após clone
 
-Isso inverte o paradigma da ciência computacional:
+Isso inverte o fluxo clássico da ciência computacional:
 
-> de “paper descreve o experimento”  
+> de “o paper descreve o experimento”
 > para “o artefato é o experimento”.
 
 ---
 
-## 🔐 Invariantes Fundamentais
-
-Um SVCA válido satisfaz simultaneamente:
-
-1. **Integridade** – hash SHA256 fixo
-2. **Executabilidade** – módulo WASM funcional
-3. **Verificabilidade Pública** – assinatura Ed25519
-4. **Reprodutibilidade Forte** – rebuild → mesmos bytes
-5. **Autonomia** – sem dependências externas
-
-Remover qualquer um invalida o primitivo.
-
----
-
-## 🚀 Uso Imediato
+## Quick start
 
 ```bash
 git clone https://github.com/MatVerse-py/svca-inescapavel.git
@@ -47,151 +35,76 @@ cd svca-inescapavel
 ./verify.sh
 ```
 
----
+Ao final, os arquivos principais estarão em `build/`:
 
-## 📦 Artefatos Gerados
-
-Após `build.sh`:
-
-```
-build/
-├── module.wasm        # binário determinístico
-├── module.wasm.br     # versão comprimida
-├── manifest.sha256    # hash oficial
-├── signature.bin      # assinatura Ed25519
-└── manifest.json      # metadados estáticos
-```
+- `build/module.wasm`
+- `build/manifest.sha256`
+- `build/signature.bin`
+- `build/manifest.json`
 
 ---
 
-## 🔎 O que `build.sh` faz
+## O que o `build.sh` faz
 
-- Compila `src/module.go` com:
-  - `GOOS=js`
-  - `GOARCH=wasm`
-  - `-trimpath`
-  - `-buildid=` (remove build ID)
-- Remove qualquer timestamp implícito
-- Gera SHA256 do binário
-- Assina o manifesto usando chave Ed25519 estável
-- Não gera chaves automaticamente
-- Não acessa rede
-- Não modifica chave pública versionada
-
-Resultado: build determinístico.
+1. Compila `src/module.go` para WASM com flags determinísticas (`-trimpath`, `-buildid=`)
+2. Gera `manifest.sha256`
+3. Gera `manifest.json` determinístico
+4. Gera par de chaves Ed25519 automaticamente (primeira execução local)
+5. Assina o manifesto
 
 ---
 
-## 🔍 O que `verify.sh` faz
+## O que o `verify.sh` valida
 
-- Valida assinatura Ed25519 contra `capsule/pubkey.pem`
-- Executa `sha256sum -c manifest.sha256`
-- Falha imediatamente se houver divergência
+1. Verifica assinatura Ed25519 de `manifest.sha256`
+2. Verifica o hash SHA256 de `module.wasm`
 
-Isso garante que:
+Se tudo estiver correto, o script encerra com:
 
-```
-binary == manifesto == assinatura == chave pública
+```text
+✅ Tudo íntegro e reproduzível.
 ```
 
 ---
 
-## 🌐 Execução do Capsule (Browser)
-
-O `capsule/loader.js`:
-
-- Carrega `manifest.json`
-- Verifica assinatura antes de instanciar WASM
-- Usa `wasm_exec.js` para runtime Go
-- Só executa se integridade for válida
-
-⚠️ O módulo **não é instanciado antes da verificação**.
-
----
-
-## 🐳 Build Hermético com Docker
+## Execução hermética com Docker (opcional)
 
 ```bash
 docker build -t svca -f container/Dockerfile .
 docker run --rm -v "$PWD:/app" svca bash -lc "cd /app && ./build.sh && ./verify.sh"
 ```
 
-A imagem base é pinned por digest SHA256.
-
-Sem dependências implícitas.
-
 ---
 
-## 🤖 CI – Reprodutibilidade Automática
+## Estrutura do repositório
 
-O GitHub Actions:
-
-- Executa `build.sh`
-- Executa `verify.sh`
-- Falha se qualquer byte divergir
-- Garante que PRs não quebrem determinismo
-
-Badge no topo reflete estado atual.
-
----
-
-## 🔑 Modelo de Assinatura
-
-- Algoritmo: Ed25519
-- Chave pública: versionada em `capsule/pubkey.pem`
-- Chave privada: não versionada
-- Nunca rotacionada automaticamente
-
-A raiz de confiança não muda entre clones.
-
----
-
-## 🧪 Propriedade Fundamental
-
-Se dois pesquisadores executarem:
-
-```
-./build.sh
-sha256sum build/module.wasm
+```text
+svca-inescapavel/
+├── .github/workflows/ci.yml
+├── capsule/
+├── container/
+├── paper/
+├── src/
+├── tools/svca-crypto/
+├── build.sh
+├── verify.sh
+├── toolchain.lock
+└── README.md
 ```
 
-O hash será idêntico.
+---
 
-Isso é o núcleo do SVCA.
+## CI de reprodutibilidade
+
+O workflow (`.github/workflows/ci.yml`) executa:
+
+- build em container
+- verificação criptográfica + hash
+- rebuild em container limpo
+- comparação de hash (`diff expected.hash actual.hash`)
 
 ---
 
-## 📜 Publicação Científica
+## Licença
 
-Para submissão:
-
-- `paper/svca.tex`
-- Artefato `build/module.wasm.br`
-- `manifest.sha256`
-- `signature.bin`
-
-O experimento não depende de link externo.
-
----
-
-## 📄 Licença
-
-MIT.
-
----
-
-## 📌 Estado do Projeto
-
-- Determinístico
-- Offline
-- Assinatura estável
-- CI ativa
-- Publicável
-
----
-
-## 🧠 Citação
-
-Mateus.  
-*SVCA: Self-Verifying Computational Artifacts.*  
-MatVerse, 2026.
+MIT. Consulte [`LICENSE`](LICENSE).
