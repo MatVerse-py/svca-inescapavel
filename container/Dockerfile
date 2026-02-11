@@ -5,13 +5,21 @@ ENV TZ=UTC
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-    ca-certificates curl git brotli minisign build-essential golang-go \
-    && rm -rf /var/lib/apt/lists/*
+        ca-certificates curl git brotli minisign \
+        build-essential wget && \
+    rm -rf /var/lib/apt/lists/*
+
+# Instalar Go deterministicamente (pinned version + hash)
+ENV GO_VERSION=1.22.3
+ENV GO_SHA256=8920ea521bad8f6b7bc377b482498c1ad3226a1970d573a287d9a7fcdb0625d5
+RUN wget -q https://dl.google.com/go/go${GO_VERSION}.linux-amd64.tar.gz && \
+    echo "${GO_SHA256}  go${GO_VERSION}.linux-amd64.tar.gz" | sha256sum -c && \
+    tar -C /usr/local -xzf go${GO_VERSION}.linux-amd64.tar.gz && \
+    rm go${GO_VERSION}.linux-amd64.tar.gz
+ENV PATH=/usr/local/go/bin:$PATH
 
 WORKDIR /app
-
 COPY . .
-
 RUN chmod +x build.sh verify.sh
 
 CMD ["./build.sh"]

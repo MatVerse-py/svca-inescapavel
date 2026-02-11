@@ -1,60 +1,53 @@
 # SVCA Inescapável
 
-Self-Verifying Computational Artifact (SVCA)
+**Self‑Verifying Computational Artifact**  
+Um primitivo para ciência executável, offline e deterministicamente reproduzível.
 
-A minimal, deterministic, self-contained computational artifact that:
-- Reproduces byte-identically
-- Verifies offline
-- Requires no external infrastructure
-- Demonstrates artifact-oriented science
+[![Reproducible Build](https://github.com/MatVerse-py/svca-inescapavel/actions/workflows/ci.yml/badge.svg)](https://github.com/MatVerse-py/svca-inescapavel/actions/workflows/ci.yml)
 
-## Core Idea
+## O que é
 
-An experiment should not be described.
+SVCA (Self‑Verifying Computational Artifact) é um objeto digital que:
+- **Contém** o experimento (código + runtime)
+- **Prova** sua própria integridade (assinatura Ed25519)
+- **Reproduz** os mesmos bytes em qualquer máquina (build determinístico)
+- **Executa** offline, sem qualquer infraestrutura externa
 
-It should be executable and self-verifying.
+Isto inverte o fluxo da ciência computacional:  
+**do “paper descreve o experimento”** → **para “o artefato é o experimento”.**
 
-SVCA enforces five invariants:
-
-1. Integrity
-2. Executability
-3. Public Verifiability
-4. Strong Reproducibility
-5. Autonomy
-
-If any invariant is removed, the class collapses.
-
----
-
-## Quick Start
+## Uso imediato (com Docker)
 
 ```bash
-docker build -f container/Dockerfile -t svca .
+git clone https://github.com/MatVerse-py/svca-inescapavel.git
+cd svca-inescapavel
+
+docker build -t svca -f container/Dockerfile .
 docker run --rm svca
 ```
 
-To verify deterministic build:
+O artefato final estará em `build/module.wasm.br` e sua assinatura em `build/signature.bin`.
+
+## Verificação de reprodutibilidade
 
 ```bash
 ./verify.sh
 ```
 
----
+Este script:
+1. Verifica a assinatura do manifesto
+2. Confere o hash do binário
+3. Compara com o hash esperado (garantido pelo `manifest.sha256` assinado)
 
-## Repository Guarantees
+## Publicação científica
 
-* No timestamps
-* No dynamic key generation
-* No network calls during build
-* No mutable dependencies
-* Container pinned by digest
-* Toolchains pinned by SHA256
-* Rebuild → identical SHA256 capsule
+Este repositório acompanha o artigo:
 
----
+> **SVCA: Self‑Verifying Computational Artifacts – A Primitive for Artifact‑Oriented Science**  
+> Disponível em `paper/svca.tex` (pronto para arXiv/SOSP).
 
-## Citation
+O próprio artefato gerado (`build/module.wasm.br`, `build/signature.bin`, `build/manifest.sha256`) pode ser anexado ao PDF como suplemento executável.
 
-If used in research:
+## Licença
 
-Mateus. *SVCA: Self-Verifying Computational Artifacts*. 2026.
+MIT. Todo código e texto são livres para uso, modificação e citação.

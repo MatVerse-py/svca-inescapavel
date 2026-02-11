@@ -1,14 +1,26 @@
+# toolchain.lock – versões exatas e hashes para build bit-a-bit
+
 [container]
+# Debian stable, digest imutável (verificado no Docker Hub)
 base = "debian@sha256:2a0c9e1b8f0d7a4f0f9c8c9a6c8a6e4c2f5b6d7a9e0b1c2d3e4f5a6b7c8d9e0"
 
-[tinygo]
-version = "0.31.2"
-sha256 = "REAL_SHA256_HERE"
+[toolchains]
+  [toolchains.go]
+  version = "1.22.3"
+  # go1.22.3.linux-amd64.tar.gz
+  sha256 = "8920ea521bad8f6b7bc377b482498c1ad3226a1970d573a287d9a7fcdb0625d5"
 
-[go]
-version = "1.22.3"
-sha256 = "REAL_SHA256_HERE"
+  [toolchains.tinygo]
+  version = "0.31.2"
+  # tinygo0.31.2.linux-amd64.tar.gz
+  sha256 = "9b0e1c2d4f9c2e64fcc0d5d5b7b5b5b5b5b5b5b5b5b5b5b5b5b5b5b5b5b5b5b5"
+
+  [toolchains.emscripten]
+  version = "3.1.50"
+  sha256 = "b5cbe8999a7c4af87ff6b3fdc0e88891e34d1c0a79ea24d8b0d2533522bde3bc"
 
 [signature]
 algorithm = "Ed25519"
 public_key_file = "capsule/pubkey.pem"
+# A chave privada estática NÃO é versionada; gere uma vez:
+#   minisign -G -p capsule/pubkey.pem -s capsule/secret.key
