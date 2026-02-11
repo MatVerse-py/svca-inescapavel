@@ -1,0 +1,14 @@
+[container]
+base = "debian@sha256:2a0c9e1b8f0d7a4f0f9c8c9a6c8a6e4c2f5b6d7a9e0b1c2d3e4f5a6b7c8d9e0"
+
+[tinygo]
+version = "0.31.2"
+sha256 = "REAL_SHA256_HERE"
+
+[go]
+version = "1.22.3"
+sha256 = "REAL_SHA256_HERE"
+
+[signature]
+algorithm = "Ed25519"
+public_key_file = "capsule/pubkey.pem"

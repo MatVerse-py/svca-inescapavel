@@ -1,0 +1,7 @@
+{
+  "name": "svca-inescapavel",
+  "version": "0.1.0",
+  "module": "module.wasm.br",
+  "signature": "signature.bin",
+  "hash": "manifest.sha256"
+}

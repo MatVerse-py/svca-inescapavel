@@ -1,0 +1,13 @@
+name: Reproducible Build
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build container
+        run: docker build -f container/Dockerfile -t svca .
+      - name: Run build
+        run: docker run --rm svca
